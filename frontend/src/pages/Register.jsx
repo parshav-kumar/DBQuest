@@ -21,7 +21,7 @@ function Register() {
     setLoading(true)
     setError('')
     try {
-      await axios.post('http://127.0.0.1:8000/register', formData)
+      await axios.post('http://localhost:8000/register', formData)
       navigate('/login')
     } catch (err) {
       setError(err.response?.data?.detail || 'Registration failed')

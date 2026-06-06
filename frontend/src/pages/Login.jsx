@@ -20,7 +20,7 @@ function Login() {
     setLoading(true)
     setError('')
     try {
-      const response = await axios.post('http://127.0.0.1:8000/login', formData)
+      const response = await axios.post('http://localhost:8000/login', formData)
       localStorage.setItem('token', response.data.access_token)
       localStorage.setItem('username', response.data.username)
       navigate('/dashboard')

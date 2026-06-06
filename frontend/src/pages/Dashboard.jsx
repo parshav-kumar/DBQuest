@@ -20,7 +20,7 @@ function Dashboard() {
 
   const fetchProgress = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:8000/progress', {
+      const response = await axios.get('http://localhost:8000/progress', {
         headers: { Authorization: `Bearer ${token}` }
       })
       setProgress(response.data)
@@ -31,7 +31,7 @@ function Dashboard() {
 
   const fetchBadges = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:8000/badges', {
+      const response = await axios.get('http://localhost:8000/badges', {
         headers: { Authorization: `Bearer ${token}` }
       })
       setBadges(response.data)
