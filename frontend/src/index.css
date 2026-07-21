@@ -1,18 +1,26 @@
 @import "tailwindcss";
+@variant dark (&:where(.dark, .dark *));
 
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-10px); }
 }
-
 .animate-float-1 {
   animation: float 3s ease-in-out infinite;
 }
-
 .animate-float-2 {
   animation: float 3s ease-in-out infinite 0.5s;
 }
-
 .animate-float-3 {
   animation: float 3s ease-in-out infinite 1s;
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.animate-fade-out {
+  animation: fadeOut 4s ease-in-out forwards;
 }

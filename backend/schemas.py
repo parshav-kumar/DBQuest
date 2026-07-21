@@ -47,11 +47,13 @@ class ProgressResponse(BaseModel):
 # ── Test Score Schemas ──
 class TestScoreCreate(BaseModel):
     test_type: str
+    topic: str
     score: float
 
 class TestScoreResponse(BaseModel):
     id: int
     test_type: str
+    topic: str
     score: float
     taken_at: datetime
 
