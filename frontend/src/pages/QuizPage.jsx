@@ -740,7 +740,7 @@ You need to analyse these FDs.`,
     setLoadingExplanation(true)
     try {
       const response = await axios.post(
-        'http://localhost:8000/ai/explain',
+        `${import.meta.env.VITE_API_URL}/ai/explain`,
         {
           question: question,
           selected_answer: selectedAns,
@@ -761,7 +761,7 @@ You need to analyse these FDs.`,
     setLoadingExplanation(true)
     try {
       const response = await axios.post(
-        'http://localhost:8000/ai/protip',
+        `${import.meta.env.VITE_API_URL}/ai/protip`,
         {
           question: question,
           selected_answer: query,
@@ -786,7 +786,7 @@ You need to analyse these FDs.`,
 
     try {
       const response = await axios.post(
-        'http://localhost:8000/quiz/sql/execute',
+        `${import.meta.env.VITE_API_URL}/quiz/sql/execute`,
         { query: query, expected_result: currentQ.expected_result },
         { headers: { Authorization: `Bearer ${token}` } }
       )
@@ -842,7 +842,7 @@ You need to analyse these FDs.`,
     setLoadingHint(true)
     try {
       const response = await axios.post(
-        'http://localhost:8000/ai/hint',
+        `${import.meta.env.VITE_API_URL}/ai/hint`,
         { question: currentQ.question, topic: topicId },
         { headers: { Authorization: `Bearer ${token}` } }
       )
@@ -891,13 +891,13 @@ You need to analyse these FDs.`,
     const passed = percentage >= 60
     try {
       await axios.post(
-        'http://localhost:8000/progress',
+        `${import.meta.env.VITE_API_URL}/progress`,
         { topic: topicId, level: parseInt(levelId), score: percentage, passed },
         { headers: { Authorization: `Bearer ${token}` } }
       )
       if (passed) {
         await axios.post(
-          'http://localhost:8000/badges',
+          `${import.meta.env.VITE_API_URL}/badges`,
           { badge_name: `${topicId}_level_${levelId}` },
           { headers: { Authorization: `Bearer ${token}` } }
         )

@@ -219,7 +219,7 @@ function PostTestPage() {
     const postPercentage = (score / shuffledQuestions.length) * 100
     try {
       await axios.post(
-        'http://localhost:8000/scores',
+        `${import.meta.env.VITE_API_URL}/scores`,
         {
           test_type: 'post',
           topic: topicId,
@@ -229,7 +229,7 @@ function PostTestPage() {
       )
 
       const scoresResponse = await axios.get(
-        'http://localhost:8000/scores',
+        `${import.meta.env.VITE_API_URL}/scores`,
         { headers: { Authorization: `Bearer ${token}` } }
       )
 

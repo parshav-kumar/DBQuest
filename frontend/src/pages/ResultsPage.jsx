@@ -69,7 +69,7 @@ function ResultsPage() {
     setLoadingRec(true)
     try {
       const response = await axios.post(
-        'http://localhost:8000/ai/recommend',
+        `${import.meta.env.VITE_API_URL}/ai/recommend`,
         {
           question: String(percentage),
           topic: topicId

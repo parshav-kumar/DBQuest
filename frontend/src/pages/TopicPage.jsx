@@ -21,7 +21,7 @@ function TopicPage() {
 
   const fetchProgress = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/progress', {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/progress`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setProgress(response.data)

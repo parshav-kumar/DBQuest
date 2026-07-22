@@ -23,7 +23,7 @@ function LeaderboardPage() {
   const fetchLeaderboard = async () => {
     setLoading(true)
     try {
-      const response = await axios.get('http://localhost:8000/leaderboard', {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/leaderboard`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setLeaderboard(response.data)

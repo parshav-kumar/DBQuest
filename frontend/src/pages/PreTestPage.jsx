@@ -216,7 +216,7 @@ function PreTestPage() {
     setSaving(true)
     try {
       await axios.post(
-        'http://localhost:8000/scores',
+        `${import.meta.env.VITE_API_URL}/scores`,
         {
           test_type: 'pre',
           topic: topicId,

@@ -1,11 +1,16 @@
 import { useState, useRef, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import axios from 'axios'
 import { useTheme } from '../context/ThemeContext'
 import ReactMarkdown from 'react-markdown'
 
 function DBBot() {
   const { theme } = useTheme()
-  const token = localStorage.getItem('token')
+  const location = useLocation()
+
+  // Keep the token in state so DBBot re-checks it instead of reading once
+  const [token, setToken] = useState(localStorage.getItem('token'))
+
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState([
     { role: 'bot', text: "Hi! I'm DBBot 🤖 — ask me anything about SQL, ER diagrams, normalisation or functional dependencies!" }
@@ -16,6 +21,26 @@ function DBBot() {
   const [isStreaming, setIsStreaming] = useState(false)
   const messagesEndRef = useRef(null)
 
+  // Hide DBBot entirely during the pre-test and post-test, so that the
+  // learning-gain measurement reflects the participant's own understanding
+  const isTestPage =
+    location.pathname.includes('/pretest') ||
+    location.pathname.includes('/posttest')
+
+  // Re-check the token whenever the page changes (e.g. after login/logout)
+  useEffect(() => {
+    setToken(localStorage.getItem('token'))
+  }, [location])
+
+  // Also re-check periodically, so login on the same page is picked up
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const current = localStorage.getItem('token')
+      setToken(prev => (prev !== current ? current : prev))
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [])
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
@@ -24,23 +49,25 @@ function DBBot() {
     scrollToBottom()
   }, [messages, isOpen, streamingText])
 
-  // Don't show DBBot if not logged in (must come AFTER all hooks)
-  if (!token) return null
+  // Close the chat window if the user logs out or enters a test page
+  useEffect(() => {
+    if (!token || isTestPage) setIsOpen(false)
+  }, [token, isTestPage])
+
+  // Don't show DBBot if not logged in, or during a test (AFTER all hooks)
+  if (!token || isTestPage) return null
 
   // Typewriter effect — types out the bot reply character by character
-  // Uses dynamic chunk sizing so short AND long responses both finish in ~2 seconds
   const typewriterEffect = (text) => {
     setIsStreaming(true)
     setStreamingText('')
     let i = 0
-    // For short text: 1 char at a time. For long text: bigger chunks. Always ~80 steps total.
     const chunkSize = Math.max(1, Math.floor(text.length / 80))
     const interval = setInterval(() => {
       i += chunkSize
       if (i < text.length) {
         setStreamingText(text.slice(0, i))
       } else {
-        // Show the full text briefly, then move it into the messages array
         setStreamingText(text)
         clearInterval(interval)
         setTimeout(() => {
@@ -50,7 +77,7 @@ function DBBot() {
           setLoading(false)
         }, 100)
       }
-    }, 20) // 20ms per step = smooth ~1.6 second animation
+    }, 20)
   }
 
   const handleSend = async () => {
@@ -63,7 +90,7 @@ function DBBot() {
 
     try {
       const response = await axios.post(
-        'http://localhost:8000/ai/chat',
+        `${import.meta.env.VITE_API_URL}/ai/chat`,
         { question: userMessage },
         { headers: { Authorization: `Bearer ${token}` } }
       )
@@ -81,7 +108,6 @@ function DBBot() {
     }
   }
 
-  // Shared markdown component config — keeps formatting clean inside chat bubbles
   const markdownComponents = {
     p: ({ children }) => <p className="mb-1 last:mb-0">{children}</p>,
     ul: ({ children }) => <ul className="list-disc pl-4 mb-1 space-y-0.5">{children}</ul>,
@@ -89,7 +115,10 @@ function DBBot() {
     li: ({ children }) => <li>{children}</li>,
     strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
     code: ({ children }) => (
-      <code className="bg-black/10 rounded px-1 py-0.5 text-xs font-mono">{children}</code>
+      <code className="bg-black/10 rounded px-1 py-0.5 text-xs font-mono break-all whitespace-pre-wrap">{children}</code>
+    ),
+    pre: ({ children }) => (
+      <pre className="bg-black/10 rounded p-2 my-1 text-xs font-mono overflow-x-auto whitespace-pre-wrap break-words">{children}</pre>
     ),
   }
 
@@ -98,7 +127,6 @@ function DBBot() {
       {/* Floating Button — pulse ring draws attention when chat is closed */}
       {!isOpen && (
         <div className="fixed bottom-6 right-6 z-50">
-          {/* Animated ping ring behind the button */}
           <span className="absolute inset-0 rounded-full bg-blue-400 animate-ping opacity-60" />
           <button
             onClick={() => setIsOpen(true)}
@@ -148,7 +176,7 @@ function DBBot() {
                 className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm ${
+                  className={`max-w-[80%] overflow-hidden break-words rounded-2xl px-4 py-2 text-sm ${
                     msg.role === 'user'
                       ? 'bg-blue-500 text-white'
                       : theme === 'dark'
@@ -165,22 +193,21 @@ function DBBot() {
               </div>
             ))}
 
-            {/* Typewriter streaming bubble — shows while bot is "typing" */}
+            {/* Typewriter streaming bubble */}
             {isStreaming && (
               <div className="flex justify-start">
-                <div className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm ${
+                <div className={`max-w-[80%] overflow-hidden break-words rounded-2xl px-4 py-2 text-sm ${
                   theme === 'dark'
                     ? 'bg-gray-700 text-gray-100'
                     : 'bg-white text-gray-900 border border-gray-200 shadow-sm'
                 }`}>
                   <ReactMarkdown components={markdownComponents}>{streamingText}</ReactMarkdown>
-                  {/* Blinking cursor at the end */}
                   <span className="inline-block w-1.5 h-3.5 bg-blue-500 ml-0.5 animate-pulse align-middle rounded-sm" />
                 </div>
               </div>
             )}
 
-            {/* "Thinking" bubble — shown while waiting for API response, before streaming starts */}
+            {/* "Thinking" bubble */}
             {loading && !isStreaming && (
               <div className="flex justify-start">
                 <div className={`rounded-2xl px-4 py-2 text-sm flex items-center gap-1.5 ${
