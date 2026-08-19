@@ -10,7 +10,7 @@ client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 def get_hint(question: str, topic: str):
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="openai/gpt-oss-120b",
         messages=[{
             "role": "user",
             "content": f"You are a helpful database tutor. Give a short hint (2-3 sentences max) to help a student answer this {topic} question without giving away the answer: {question}"
@@ -21,7 +21,7 @@ def get_hint(question: str, topic: str):
 
 def get_explanation(question: str, selected_answer: str, correct_answer: str, topic: str):
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="openai/gpt-oss-120b",
         messages=[{
             "role": "user",
             "content": f"You are a helpful database tutor. A student answered a {topic} question. Question: {question}. Their answer: {selected_answer}. Correct answer: {correct_answer}. Give a clear 3-4 sentence explanation of why the correct answer is right."
@@ -32,7 +32,7 @@ def get_explanation(question: str, selected_answer: str, correct_answer: str, to
 
 def get_sql_protip(query: str, question: str):
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="openai/gpt-oss-120b",
         messages=[{
             "role": "user",
             "content": f"You are a helpful database tutor. A student correctly answered a SQL question by writing this query: {query}. The task was: {question}. Give them ONE interesting pro tip (2-3 sentences) about their query — such as alternative ways to write it, best practices, performance considerations, or real-world usage. Do NOT explain what the query does since they already know. Start with 'Pro tip:'"
@@ -97,7 +97,7 @@ def get_chat_response(user_message: str, topic: str = None):
         )
 
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="openai/gpt-oss-120b",
         messages=[
             {"role": "system", "content": system},
             {"role": "user", "content": user_message}
@@ -108,7 +108,7 @@ def get_chat_response(user_message: str, topic: str = None):
 
 def get_recommendation(topic: str, score: float):
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="openai/gpt-oss-120b",
         messages=[{
             "role": "user",
             "content": f"You are a learning advisor. A student scored {score}% on a {topic} level. Give a personalised 2-3 sentence study recommendation."
